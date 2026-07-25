@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-07-25T17:34:55.449Z",
+  "staleAfterDays": 7,
+  "sourceWorkbook": "配息計算機資料設定表_自動抓取版.xlsx",
+  "rates": [
+    {
+      "currencyPair": "USD/TWD",
+      "autoUpdate": true,
+      "primarySource": {
+        "sourceName": "臺灣銀行",
+        "sourceUrl": "https://rate.bot.com.tw/xrt?Lang=zh-TW",
+        "fetchMethod": "html"
+      },
+      "secondarySource": {
+        "sourceName": "凱基銀行",
+        "sourceUrl": "https://www.kgibank.com.tw/zh-tw/personal/interest-rate/fx",
+        "fetchMethod": "html"
+      },
+      "manualFallback": {
+        "spotBuyingRate": 30.5,
+        "spotSellingRate": 30.7,
+        "rateDate": "2026-07-23"
+      },
+      "note": "備援匯率目前為測試值"
+    }
+  ]
+}

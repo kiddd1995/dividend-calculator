@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2026-07-25T17:34:55.449Z",
+  "feePlans": [
+    {
+      "id": "none",
+      "name": "不計算商品費用",
+      "periods": [
+        {
+          "fromMonth": 1,
+          "toMonth": 120,
+          "monthlyFeeRate": 0
+        }
+      ]
+    },
+    {
+      "id": "threeYear",
+      "name": "三年期費用",
+      "periods": [
+        {
+          "fromMonth": 1,
+          "toMonth": 12,
+          "monthlyFeeRate": 0.0026
+        },
+        {
+          "fromMonth": 13,
+          "toMonth": 24,
+          "monthlyFeeRate": 0.0025
+        },
+        {
+          "fromMonth": 25,
+          "toMonth": 36,
+          "monthlyFeeRate": 0.0024
+        },
+        {
+          "fromMonth": 37,
+          "toMonth": 120,
+          "monthlyFeeRate": 0
+        }
+      ]
+    },
+    {
+      "id": "fourYear",
+      "name": "四年期費用",
+      "periods": [
+        {
+          "fromMonth": 1,
+          "toMonth": 48,
+          "monthlyFeeRate": 0.0015
+        },
+        {
+          "fromMonth": 49,
+          "toMonth": 120,
+          "monthlyFeeRate": 0
+        }
+      ]
+    }
+  ]
+}

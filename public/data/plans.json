@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2026-07-25T17:34:55.449Z",
+  "defaultProjectId": "stable1",
+  "plans": [
+    {
+      "id": "stable1",
+      "name": "穩定領息專案－主方案一",
+      "allocations": {
+        "ap": 90,
+        "allianzTaiwanTech": 10
+      }
+    },
+    {
+      "id": "stable2",
+      "name": "穩定領息專案－主方案二",
+      "allocations": {
+        "ap": 80,
+        "qqq": 20
+      }
+    },
+    {
+      "id": "capital1",
+      "name": "資金活用專案－主方案一",
+      "allocations": {
+        "ap": 40,
+        "invesco": 45,
+        "qqq": 15
+      }
+    },
+    {
+      "id": "capital2",
+      "name": "資金活用專案－主方案二",
+      "allocations": {
+        "ap": 35,
+        "invesco": 50,
+        "qqq": 15
+      }
+    },
+    {
+      "id": "sponsor1",
+      "name": "金主雙配專案－主方案一",
+      "allocations": {
+        "ap": 35,
+        "invesco": 55,
+        "qqq": 10
+      }
+    },
+    {
+      "id": "sponsor2",
+      "name": "金主雙配專案－主方案二",
+      "allocations": {
+        "ap": 30,
+        "invesco": 60,
+        "qqq": 10
+      }
+    }
+  ]
+}

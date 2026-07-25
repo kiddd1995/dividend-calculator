@@ -1,0 +1,25 @@
+{
+  "name": "dividend-calculator",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "import:data": "node scripts/import-excel-data.js",
+    "update:data": "node scripts/update-live-data.js",
+    "test:data": "node scripts/test-data-logic.js",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "cheerio": "^1.2.0",
+    "iconv-lite": "^0.7.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.6.0",
+    "vite": "^7.0.4"
+  }
+}
