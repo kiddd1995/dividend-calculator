@@ -199,15 +199,24 @@ function exchangeFallbackHint(rate) {
 function SiteHeader() {
   return (
     <header className="hero">
-      <div className="brand-mark" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-      </div>
-      <div>
-        <span className="hero-kicker">DIVIDEND PLANNER</span>
-        <h1>配息計算機</h1>
-        <p>依最新淨值與配息資料，試算預估配息與規劃結果。</p>
+      <a
+        className="return-calculators-link"
+        href="https://kiddd1995.github.io/mobile-office/#/calculators"
+      >
+        <span aria-hidden="true">←</span>
+        返回各類計算機
+      </a>
+      <div className="hero-heading">
+        <div className="brand-mark" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+        <div>
+          <span className="hero-kicker">DIVIDEND PLANNER</span>
+          <h1>配息計算機</h1>
+          <p>依最新淨值與配息資料，試算預估配息與規劃結果。</p>
+        </div>
       </div>
     </header>
   )
