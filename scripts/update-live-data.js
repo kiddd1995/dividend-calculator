@@ -176,6 +176,10 @@ function canUsePreviousDistribution(previous) {
   )
 }
 
+function isEarlierDate(nextDate, previousDate) {
+  return Boolean(nextDate && previousDate && nextDate < previousDate)
+}
+
 function manualNav(asset, fetchedAt) {
   return {
     nav: asset.fallbackNav,
@@ -219,6 +223,14 @@ async function updateAsset(asset, previous, fetchedAt) {
   } else {
     try {
       const nav = await fetchAssetNav(asset)
+      if (
+        canUsePreviousNav(previous) &&
+        isEarlierDate(nav.navDate, previous.navDate)
+      ) {
+        throw new Error(
+          `來源淨值日期 ${nav.navDate} 早於上次成功日期 ${previous.navDate}`,
+        )
+      }
       Object.assign(live, {
         ...nav,
         navSourceName: asset.navSourceName,
@@ -256,6 +268,14 @@ async function updateAsset(asset, previous, fetchedAt) {
   } else {
     try {
       const distribution = await fetchAssetDistribution(asset)
+      if (
+        canUsePreviousDistribution(previous) &&
+        isEarlierDate(distribution.distributionDate, previous.distributionDate)
+      ) {
+        throw new Error(
+          `來源配息日期 ${distribution.distributionDate} 早於上次成功日期 ${previous.distributionDate}`,
+        )
+      }
       Object.assign(live, {
         distributionPerUnit: distribution.distributionPerUnit,
         annualDistributionRate:
@@ -378,6 +398,14 @@ async function updateExchangeRate(config, previous, fetchedAt) {
       if (source.fetchMethod === 'manual') continue
       try {
         const data = await fetchExchangeSource(source)
+        if (
+          validPreviousRate(previous) &&
+          isEarlierDate(data.rateDate, previous.rateDate)
+        ) {
+          throw new Error(
+            `來源匯率日期 ${data.rateDate} 早於上次成功日期 ${previous.rateDate}`,
+          )
+        }
         return {
           currencyPair: config.currencyPair,
           ...data,
@@ -431,8 +459,91 @@ async function writeJson(filePath, payload) {
   await fs.rename(temporaryPath, filePath)
 }
 
-function summarizeAsset(asset) {
-  return `${asset.assetId}: 淨值=${asset.navStatus}, 配息=${asset.distributionStatus}`
+function valuesMatch(left, right) {
+  return Number(left) === Number(right)
+}
+
+function updateLabel(status, previousDate, nextDate, valuesAreEqual) {
+  if (
+    status === 'previous' ||
+    (previousDate === nextDate && valuesAreEqual)
+  ) {
+    return '沿用舊資料'
+  }
+  if (status === 'success') return '更新成功'
+  if (status === 'manual' || status === 'fallback') return '使用人工備援'
+  return status
+}
+
+function summarizeAsset(asset, previous) {
+  const navLabel = updateLabel(
+    asset.navStatus,
+    previous?.navDate,
+    asset.navDate,
+    valuesMatch(previous?.nav, asset.nav),
+  )
+  const distributionLabel = updateLabel(
+    asset.distributionStatus,
+    previous?.distributionDate,
+    asset.distributionDate,
+    valuesMatch(previous?.distributionPerUnit, asset.distributionPerUnit),
+  )
+  return [
+    `${asset.assetId}:`,
+    `淨值=${navLabel}（${previous?.navDate ?? '無'} → ${asset.navDate ?? '無'}）`,
+    `配息=${distributionLabel}（${previous?.distributionDate ?? '無'} → ${asset.distributionDate ?? '無'}）`,
+  ].join(' ')
+}
+
+function summarizeRate(rate, previous) {
+  const valuesAreEqual =
+    valuesMatch(previous?.spotBuyingRate, rate.spotBuyingRate) &&
+    valuesMatch(previous?.spotSellingRate, rate.spotSellingRate)
+  const label = updateLabel(
+    rate.status,
+    previous?.rateDate,
+    rate.rateDate,
+    valuesAreEqual,
+  )
+  return `${rate.currencyPair}: 匯率=${label}（${previous?.rateDate ?? '無'} → ${rate.rateDate ?? '無'}），fallbackLevel=${rate.fallbackLevel}`
+}
+
+const volatileLiveKeys = new Set([
+  'navFetchedAt',
+  'distributionFetchedAt',
+  'fetchedAt',
+  'navStatus',
+  'distributionStatus',
+  'status',
+  'navFallbackLevel',
+  'distributionFallbackLevel',
+  'fallbackLevel',
+  'navFailureReason',
+  'distributionFailureReason',
+  'failureReason',
+])
+
+function comparableRecord(record) {
+  return Object.fromEntries(
+    Object.entries(record)
+      .filter(([key]) => !volatileLiveKeys.has(key))
+      .sort(([left], [right]) => left.localeCompare(right)),
+  )
+}
+
+function recordsHaveDataChanges(previousRecords, nextRecords, keyName) {
+  if (previousRecords.length !== nextRecords.length) return true
+  const previousMap = new Map(
+    previousRecords.map((record) => [
+      record[keyName],
+      JSON.stringify(comparableRecord(record)),
+    ]),
+  )
+  return nextRecords.some(
+    (record) =>
+      previousMap.get(record[keyName]) !==
+      JSON.stringify(comparableRecord(record)),
+  )
 }
 
 async function main() {
@@ -457,7 +568,9 @@ async function main() {
       fetchedAt,
     )
     assets.push(live)
-    console.log(summarizeAsset(live))
+    console.log(
+      summarizeAsset(live, previousAssetsMap.get(asset.assetId)),
+    )
   }
 
   const rates = []
@@ -469,22 +582,46 @@ async function main() {
     )
     rates.push(live)
     console.log(
-      `${live.currencyPair}: 匯率=${live.status}, fallbackLevel=${live.fallbackLevel}`,
+      summarizeRate(
+        live,
+        previousRatesMap.get(rateConfig.currencyPair),
+      ),
     )
   }
 
-  await Promise.all([
-    writeJson(assetsLivePath, {
+  const assetsChanged = recordsHaveDataChanges(
+    previousAssets.assets ?? [],
+    assets,
+    'assetId',
+  )
+  const ratesChanged = recordsHaveDataChanges(
+    previousExchange.rates ?? [],
+    rates,
+    'currencyPair',
+  )
+  const writes = []
+
+  if (assetsChanged) {
+    writes.push(writeJson(assetsLivePath, {
       generatedAt: fetchedAt,
       dataStatus: '自動更新資料',
       assets,
-    }),
-    writeJson(exchangeLivePath, {
+    }))
+  } else {
+    console.log('標的沒有有效新資料，assets-live.json 維持不變。')
+  }
+
+  if (ratesChanged) {
+    writes.push(writeJson(exchangeLivePath, {
       generatedAt: fetchedAt,
       staleAfterDays: exchangeConfig.staleAfterDays ?? 7,
       rates,
-    }),
-  ])
+    }))
+  } else {
+    console.log('匯率沒有有效新資料，exchange-live.json 維持不變。')
+  }
+
+  await Promise.all(writes)
   console.log('自動資料更新完成。')
 }
 
