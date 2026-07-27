@@ -3,7 +3,7 @@ name: Update live fund data
 on:
   workflow_dispatch:
   schedule:
-    - cron: "30 14 * * *"
+    - cron: "0 4 * * *"
 
 permissions:
   contents: write
