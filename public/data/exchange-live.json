@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-08-17T04:49:27.235Z",
+  "generatedAt": "2026-08-18T04:40:55.891Z",
   "staleAfterDays": 7,
   "rates": [
     {
       "currencyPair": "USD/TWD",
-      "spotBuyingRate": 31.835,
-      "spotSellingRate": 31.935,
-      "rateDate": "2026-08-17",
+      "spotBuyingRate": 31.805,
+      "spotSellingRate": 31.905,
+      "rateDate": "2026-08-18",
       "sourceName": "凱基銀行",
       "sourceUrl": "https://www.kgibank.com.tw/zh-tw/personal/interest-rate/fx",
-      "fetchedAt": "2026-08-17T04:49:27.235Z",
+      "fetchedAt": "2026-08-18T04:40:55.891Z",
       "status": "success",
       "fallbackLevel": "secondary",
       "failureReason": "臺灣銀行：中文內容解碼後仍無法辨識"
