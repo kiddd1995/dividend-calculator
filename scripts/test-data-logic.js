@@ -6,11 +6,19 @@ import {
   resolvePolicyLoanTerms,
 } from '../src/utils/calculator.js'
 
-const [assetsPayload, plansPayload, exchangePayload, feePayload] =
-  await Promise.all([
+const [
+  assetsPayload,
+  assetsConfigPayload,
+  plansPayload,
+  exchangePayload,
+  exchangeConfigPayload,
+  feePayload,
+] = await Promise.all([
     fs.readFile('public/data/assets-live.json', 'utf8').then(JSON.parse),
+    fs.readFile('public/data/assets.json', 'utf8').then(JSON.parse),
     fs.readFile('public/data/plans.json', 'utf8').then(JSON.parse),
     fs.readFile('public/data/exchange-live.json', 'utf8').then(JSON.parse),
+    fs.readFile('public/data/exchange-rates.json', 'utf8').then(JSON.parse),
     fs.readFile('public/data/fee-plans.json', 'utf8').then(JSON.parse),
   ])
 
@@ -33,6 +41,76 @@ assert(qqq?.distributionStatus === 'manual', 'QQQ 配息應為 manual')
 assert(qqq?.distributionPerUnit === 0, 'QQQ 每單位配息應為 0')
 assert(qqq?.annualDistributionRate === 0, 'QQQ 年化配息率應為 0')
 assert(!qqq?.distributionFailureReason, 'QQQ 不應有配息錯誤')
+
+const dsp5Config = assetsConfigPayload.assets.find(
+  (asset) => asset.assetId === 'DSP5',
+)
+const dsp5 = assetData.DSP5
+assert(dsp5Config, '最新版 Excel 應包含 DSP5 標的設定')
+assert(
+  dsp5Config.enabled === true &&
+    dsp5Config.autoUpdate === true &&
+    dsp5Config.currency === 'USD' &&
+    dsp5Config.navFetchMethod === 'html' &&
+    dsp5Config.distributionFetchMethod === 'html',
+  'DSP5 應啟用 USD 淨值與配息自動抓取',
+)
+assert(
+  dsp5Config.navSourceUrl?.includes('wb02.djhtm?a=TLZ64-TFP6') &&
+    dsp5Config.distributionSourceUrl?.includes('wb05.djhtm?a=TLZ64-TFP6'),
+  'DSP5 淨值與配息網址應分別使用 wb02 與 wb05',
+)
+assert(
+  Math.abs(dsp5Config.fallbackAnnualDistributionRate - 0.075342) < 0.000001,
+  'DSP5 備援年化配息率應為 7.5342%',
+)
+assert(
+  Math.abs(dsp5Config.marketScenarioDrawdown - -0.0409) < 0.000001 &&
+    Math.abs(dsp5Config.extremeStressDrawdown - 0.4) < 0.000001,
+  'DSP5 一般市場試算應為 -4.09%，極端壓力跌幅應為 40%',
+)
+assert(
+  dsp5?.navStatus === 'success' &&
+    Number.isFinite(dsp5.nav) &&
+    dsp5.nav > 0 &&
+    dsp5.navDate,
+  'DSP5 最新淨值應自動抓取成功',
+)
+assert(
+  dsp5?.distributionStatus === 'success' &&
+    Number.isFinite(dsp5.distributionPerUnit) &&
+    dsp5.distributionPerUnit >= 0 &&
+    dsp5.distributionDate,
+  'DSP5 最新配息應自動抓取成功',
+)
+assert(
+  !plansPayload.plans.some((plan) =>
+    Object.hasOwn(plan.allocations, 'DSP5'),
+  ),
+  'DSP5 不可自動加入任何固定方案',
+)
+
+const usdRate = exchangePayload.rates.find(
+  (rate) => rate.currencyPair === 'USD/TWD',
+)
+const usdRateConfig = exchangeConfigPayload.rates.find(
+  (rate) => rate.currencyPair === 'USD/TWD',
+)
+assert(
+  usdRate?.sourceName === '臺灣銀行' &&
+    usdRate.fallbackLevel === 'primary' &&
+    usdRate.status === 'success' &&
+    usdRate.failureReason === null &&
+    usdRate.spotBuyingRate > 0 &&
+    usdRate.spotSellingRate > 0 &&
+    usdRate.rateDate,
+  '臺灣銀行 USD 即期買入、賣出與日期應由 primary 成功取得',
+)
+assert(
+  usdRateConfig?.secondarySource?.sourceName === '凱基銀行' &&
+    usdRateConfig.secondarySource.fetchMethod === 'html',
+  '凱基銀行應保留為 USD 匯率 secondary 來源',
+)
 
 const qqqPlan = plansPayload.plans.find((plan) => plan.id === 'stable2')
 assert(qqqPlan?.allocations.qqq === 20, '測試專案應包含 QQQ 20%')

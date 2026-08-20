@@ -371,8 +371,11 @@ function parseKgiExchange(html) {
 }
 
 export async function fetchExchangeSource(source) {
-  const { text } = await downloadDecodedText(source.sourceUrl)
-  if (source.sourceUrl.includes('rate.bot.com.tw')) return parseBotExchange(text)
+  const isBotSource = source.sourceUrl.includes('rate.bot.com.tw')
+  const { text } = await downloadDecodedText(source.sourceUrl, {
+    expectChinese: !isBotSource,
+  })
+  if (isBotSource) return parseBotExchange(text)
   if (source.sourceUrl.includes('kgibank.com.tw')) return parseKgiExchange(text)
   throw new Error('尚未支援此匯率來源')
 }

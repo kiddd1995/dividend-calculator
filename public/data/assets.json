@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-25T17:34:55.449Z",
+  "generatedAt": "2026-08-20T08:37:58.231Z",
   "dataStatus": "Excel 設定資料（備援值含測試資料）",
   "sourceWorkbook": "配息計算機資料設定表_自動抓取版.xlsx",
   "assets": [
@@ -18,7 +18,7 @@
       "fallbackNav": 10,
       "fallbackDistributionPerUnit": 0.0718,
       "fallbackAnnualDistributionRate": 0.0862,
-      "fallbackDate": "2026-07-23",
+      "fallbackDate": "2026-08-19",
       "marketScenarioDrawdown": -0.0455,
       "extremeStressDrawdown": 0.45,
       "note": "備援值目前為測試資料"
@@ -38,7 +38,7 @@
       "fallbackNav": 8.5,
       "fallbackDistributionPerUnit": 0.06,
       "fallbackAnnualDistributionRate": 0.0847,
-      "fallbackDate": "2026-07-23",
+      "fallbackDate": "2026-08-19",
       "marketScenarioDrawdown": -0.0561,
       "extremeStressDrawdown": 0.3,
       "note": "備援值目前為測試資料"
@@ -58,7 +58,7 @@
       "fallbackNav": 550,
       "fallbackDistributionPerUnit": 0,
       "fallbackAnnualDistributionRate": 0,
-      "fallbackDate": "2026-07-23",
+      "fallbackDate": "2026-08-19",
       "marketScenarioDrawdown": 0.09,
       "extremeStressDrawdown": 0.5,
       "note": "可使用行情API或官方資料頁"
@@ -78,7 +78,7 @@
       "fallbackNav": 890,
       "fallbackDistributionPerUnit": 0,
       "fallbackAnnualDistributionRate": 0,
-      "fallbackDate": "2026-07-23",
+      "fallbackDate": "2026-08-19",
       "marketScenarioDrawdown": 0.12,
       "extremeStressDrawdown": 0.55,
       "note": "增長型標的"
@@ -98,7 +98,27 @@
       "fallbackNav": 8.8346,
       "fallbackDistributionPerUnit": 0.06796,
       "fallbackAnnualDistributionRate": 0.0912,
-      "fallbackDate": "2026-07-23",
+      "fallbackDate": "2026-08-19",
+      "marketScenarioDrawdown": -0.0409,
+      "extremeStressDrawdown": 0.4,
+      "note": null
+    },
+    {
+      "assetId": "DSP5",
+      "displayName": "安聯收益成長基金-AM穩定月收類股(美元)",
+      "enabled": true,
+      "currency": "USD",
+      "autoUpdate": true,
+      "navSourceName": "凱基人壽",
+      "navSourceUrl": "https://kgilife.moneydj.com/w/wb/wb02.djhtm?a=TLZ64-TFP6",
+      "navFetchMethod": "html",
+      "distributionSourceName": "凱基人壽",
+      "distributionSourceUrl": "https://kgilife.moneydj.com/w/wb/wb05.djhtm?a=TLZ64-TFP6",
+      "distributionFetchMethod": "html",
+      "fallbackNav": 8.5933,
+      "fallbackDistributionPerUnit": 0.055,
+      "fallbackAnnualDistributionRate": 0.075342,
+      "fallbackDate": "2026-08-19",
       "marketScenarioDrawdown": -0.0409,
       "extremeStressDrawdown": 0.4,
       "note": null
