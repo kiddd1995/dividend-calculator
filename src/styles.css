@@ -294,6 +294,45 @@ select:focus {
   gap: 10px;
 }
 
+.shared-inputs {
+  align-items: stretch;
+  gap: 20px;
+}
+
+.shared-inputs .basic-info-field {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
+}
+
+.shared-inputs .field-label {
+  align-items: center;
+  min-height: 18px;
+}
+
+.shared-inputs .field-label small {
+  margin-left: auto;
+  text-align: right;
+}
+
+.shared-inputs .input-with-unit {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.shared-inputs .input-with-unit > span {
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  transform: none;
+}
+
+.shared-inputs .capital-field .input-with-unit {
+  align-self: center;
+}
+
 .period-shortcuts {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1913,6 +1952,10 @@ footer p {
 
   .form-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .shared-inputs {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .result-grid {

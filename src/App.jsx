@@ -713,7 +713,11 @@ function CalculatorApp({ appData }) {
         description="本金、期間、匯率與規劃條件由方案 A、B 共用。"
       >
         <div className="form-grid shared-inputs">
-          <Field label="投入本金" hint="以萬元計">
+          <div className="field basic-info-field capital-field">
+            <span className="field-label">
+              投入本金
+              <small>以萬元計</small>
+            </span>
             <div className="input-with-unit">
               <input
                 type="number"
@@ -727,9 +731,9 @@ function CalculatorApp({ appData }) {
               />
               <span>萬元</span>
             </div>
-          </Field>
+          </div>
 
-          <div className="field">
+          <div className="field basic-info-field period-field">
             <span className="field-label">
               試算期間
               <small>可自行輸入 1～20 年</small>
