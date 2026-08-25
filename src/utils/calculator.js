@@ -23,6 +23,28 @@ function assetCurrencyToTwd(amount, currency, exchangeRates) {
   return amount * rate.spotBuyingRate
 }
 
+export const TRIAL_PERIOD_ERROR = '試算期間請輸入 1～20 年的整數'
+
+export function validateTrialYears(value) {
+  const normalizedValue = String(value ?? '').trim()
+  const isIntegerText = /^\d+$/.test(normalizedValue)
+  const years = isIntegerText ? Number(normalizedValue) : null
+  const valid =
+    isIntegerText && Number.isInteger(years) && years >= 1 && years <= 20
+
+  return {
+    valid,
+    years: valid ? years : null,
+    error: valid ? null : TRIAL_PERIOD_ERROR,
+  }
+}
+
+function requireValidTrialYears(value) {
+  const validation = validateTrialYears(value)
+  if (!validation.valid) throw new Error(validation.error)
+  return validation.years
+}
+
 export function calculateDividendResult({
   principalWan,
   allocations,
@@ -30,6 +52,7 @@ export function calculateDividendResult({
   assetData,
   exchangeRates,
 }) {
+  const validatedYears = requireValidTrialYears(years)
   const principal = Math.max(Number(principalWan) || 0, 0) * 10000
 
   const monthlyDividend = Object.entries(allocations).reduce(
@@ -68,7 +91,7 @@ export function calculateDividendResult({
     principal,
     monthlyDividend,
     annualDividend,
-    accumulatedDividend: annualDividend * years,
+    accumulatedDividend: annualDividend * validatedYears,
     annualizedDistributionRate:
       principal > 0 ? (annualDividend / principal) * 100 : 0,
   }
@@ -76,10 +99,11 @@ export function calculateDividendResult({
 
 function calculateProductFees(principal, feeType, years, feePlans) {
   if (feeType === 'none') return 0
+  const validatedYears = requireValidTrialYears(years)
   const feePlan = feePlans.find((plan) => plan.id === feeType)
   if (!feePlan) throw new Error(`找不到商品費用方案：${feeType}`)
 
-  const monthsToCalculate = years * 12
+  const monthsToCalculate = validatedYears * 12
   return feePlan.periods.reduce((total, period) => {
     const lastMonth = Math.min(period.toMonth, monthsToCalculate)
     const applicableMonths = Math.max(lastMonth - period.fromMonth + 1, 0)
@@ -199,6 +223,16 @@ export function calculateStressTestResult({
   feePlans,
   accumulatedDividend,
 }) {
+  const trialYearsValidation = validateTrialYears(years)
+  if (!trialYearsValidation.valid) {
+    return {
+      enabled: stressType !== 'none',
+      valid: false,
+      scenario: stressType,
+      error: trialYearsValidation.error,
+    }
+  }
+
   if (stressType === 'none') {
     return {
       enabled: false,

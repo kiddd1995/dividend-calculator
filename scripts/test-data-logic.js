@@ -4,6 +4,7 @@ import {
   calculatePlanningResult,
   calculateStressTestResult,
   resolvePolicyLoanTerms,
+  validateTrialYears,
 } from '../src/utils/calculator.js'
 
 const [
@@ -123,6 +124,82 @@ const dividend = calculateDividendResult({
   exchangeRates: exchangePayload.rates,
 })
 assert(Number.isFinite(dividend.monthlyDividend), '含 QQQ 的配息試算應可完成')
+
+const validTrialYears = [1, 4, 6, 7, 10, 15, 20]
+for (const years of validTrialYears) {
+  const validation = validateTrialYears(String(years))
+  assert(
+    validation.valid && validation.years === years,
+    `${years} 年應為有效試算期間`,
+  )
+
+  const durationDividend = calculateDividendResult({
+    principalWan: 100,
+    allocations: qqqPlan.allocations,
+    years,
+    assetData,
+    exchangeRates: exchangePayload.rates,
+  })
+  const durationPlanning = calculatePlanningResult({
+    planningMode: 'none',
+    principal: durationDividend.principal,
+    ownCapital: durationDividend.principal,
+    allocations: qqqPlan.allocations,
+    years,
+    annualLoanRate: 4,
+    feeType: 'fourYear',
+    stressType: 'normal',
+    assetData,
+    exchangeRates: exchangePayload.rates,
+    feePlans: feePayload.feePlans,
+  })
+  const expectedFourYearFees =
+    durationDividend.principal * 0.0015 * Math.min(years * 12, 48)
+
+  assert(
+    Number.isFinite(durationDividend.accumulatedDividend) &&
+      Math.abs(
+        durationDividend.accumulatedDividend -
+          durationDividend.annualDividend * years,
+      ) < 0.001,
+    `${years} 年累積配息應使用實際輸入年數`,
+  )
+  assert(
+    Number.isFinite(durationPlanning.totalProductFees) &&
+      Number.isFinite(durationPlanning.projectedAccountValue) &&
+      Math.abs(
+        durationPlanning.totalProductFees - expectedFourYearFees,
+      ) < 0.001,
+    `${years} 年規劃與壓力試算應完成，四年費用最多只收 48 個月`,
+  )
+}
+
+for (const invalidYears of [-1, 0, 21, 3.5, '', 'abc']) {
+  const validation = validateTrialYears(invalidYears)
+  assert(
+    !validation.valid &&
+      validation.error === '試算期間請輸入 1～20 年的整數',
+    `${invalidYears === '' ? '空值' : invalidYears} 應阻止試算`,
+  )
+}
+
+const twentyYearThreeYearFees = calculatePlanningResult({
+  planningMode: 'none',
+  principal: dividend.principal,
+  ownCapital: dividend.principal,
+  allocations: qqqPlan.allocations,
+  years: 20,
+  annualLoanRate: 4,
+  feeType: 'threeYear',
+  stressType: 'normal',
+  assetData,
+  exchangeRates: exchangePayload.rates,
+  feePlans: feePayload.feePlans,
+})
+assert(
+  Math.abs(twentyYearThreeYearFees.totalProductFees - 90000) < 0.001,
+  '三年期費用在 20 年試算中仍只收前 36 個月',
+)
 
 const planning = calculatePlanningResult({
   planningMode: 'policyLoan',

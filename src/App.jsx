@@ -17,6 +17,7 @@ import {
   calculatePlanningResult,
   calculateStressTestResult,
   resolvePolicyLoanTerms,
+  validateTrialYears,
 } from './utils/calculator.js'
 
 const CUSTOM_PROJECT_ID = 'custom'
@@ -250,14 +251,16 @@ function CalculatorApp({ appData }) {
   })
 
   const [principalWan, setPrincipalWan] = useState('100')
-  const [years, setYears] = useState(4)
+  const [yearsInput, setYearsInput] = useState('4')
   const [planningOpen, setPlanningOpen] = useState(false)
   const [planningOptions, setPlanningOptions] = useState(initialPlanningOptions)
   const [calculation, setCalculation] = useState(null)
   const [calculationGenerated, setCalculationGenerated] = useState(false)
   const [basicResultDirty, setBasicResultDirty] = useState(false)
   const [generatedPlanning, setGeneratedPlanning] = useState(null)
-  const [generatedPlanningYears, setGeneratedPlanningYears] = useState(years)
+  const [generatedCalculationYears, setGeneratedCalculationYears] =
+    useState(4)
+  const [generatedPlanningYears, setGeneratedPlanningYears] = useState(4)
   const [planningGenerated, setPlanningGenerated] = useState(false)
   const [planningDirty, setPlanningDirty] = useState(false)
   const [
@@ -270,6 +273,9 @@ function CalculatorApp({ appData }) {
   const [planBCalculationError, setPlanBCalculationError] = useState(null)
   const [calculationError, setCalculationError] = useState(null)
   const planningResultRef = useRef(null)
+
+  const trialYearsValidation = validateTrialYears(yearsInput)
+  const trialYears = trialYearsValidation.years
 
   const usdRate = getPrimaryExchangeRate(exchangeRates, 'USD/TWD')
   const exchangeRateIsStale = isExchangeRateStale(
@@ -286,16 +292,19 @@ function CalculatorApp({ appData }) {
     !configurationNeedsUsdRate(planA.allocations) || Boolean(usdRate)
   const planBHasRequiredRates =
     !configurationNeedsUsdRate(planB.allocations) || Boolean(usdRate)
-  const canCalculateA = planA.isAllocationValid && planAHasRequiredRates
+  const canCalculateA =
+    trialYearsValidation.valid &&
+    planA.isAllocationValid &&
+    planAHasRequiredRates
   const planABasicSignature = createBasicComparisonSignature({
     principalWan,
-    years,
+    years: trialYears ?? yearsInput,
     allocations: planA.allocations,
     usdRate,
   })
   const planBBasicSignature = createBasicComparisonSignature({
     principalWan,
-    years,
+    years: trialYears ?? yearsInput,
     allocations: planB.allocations,
     usdRate,
   })
@@ -318,7 +327,7 @@ function CalculatorApp({ appData }) {
   })
   const planningDependencyKey = JSON.stringify({
     principalWan,
-    years,
+    yearsInput,
     selectedProjectId: planA.selectedProjectId,
     allocations: planA.allocations,
     comparisonEnabled,
@@ -338,7 +347,7 @@ function CalculatorApp({ appData }) {
     const dividend = calculateDividendResult({
       principalWan,
       allocations,
-      years,
+      years: trialYears,
       assetData,
       exchangeRates,
     })
@@ -357,7 +366,7 @@ function CalculatorApp({ appData }) {
       ownCapital,
       sponsorCapital,
       allocations,
-      years,
+      years: trialYears,
       policyLoanRatio: planningOptions.policyLoanRatio,
       policyLoanAmount:
         Number(planningOptions.policyLoanAmountWan) * 10000,
@@ -374,6 +383,15 @@ function CalculatorApp({ appData }) {
     const principal = ownCapital
     let accumulatedDividend = 0
     let planning = null
+
+    if (!trialYearsValidation.valid) {
+      return {
+        enabled: planningOptions.stressType !== 'none',
+        valid: false,
+        scenario: planningOptions.stressType,
+        error: trialYearsValidation.error,
+      }
+    }
 
     if (
       (!planningGenerated ||
@@ -420,7 +438,7 @@ function CalculatorApp({ appData }) {
     return calculateStressTestResult({
       principal: planning?.policyInvestedCapital ?? principal,
       allocations: configuration.allocations,
-      years,
+      years: trialYears,
       useLoan: (planning?.policyLoanPrincipal ?? 0) > 0,
       loanRatio: planning?.policyLoanRatio ?? 0,
       policyLoanPrincipal: planning?.policyLoanPrincipal ?? 0,
@@ -441,7 +459,7 @@ function CalculatorApp({ appData }) {
     () => calculateLiveStress(planA),
     [
       principalWan,
-      years,
+      yearsInput,
       planA.allocations,
       planA.isAllocationValid,
       planningOptions.planningMode,
@@ -466,7 +484,7 @@ function CalculatorApp({ appData }) {
     () => calculateLiveStress(planB),
     [
       principalWan,
-      years,
+      yearsInput,
       planB.allocations,
       planB.isAllocationValid,
       planningOptions.planningMode,
@@ -489,7 +507,9 @@ function CalculatorApp({ appData }) {
   )
 
   let planningValidationMessage = null
-  if (!calculationGenerated || basicResultDirty) {
+  if (!trialYearsValidation.valid) {
+    planningValidationMessage = trialYearsValidation.error
+  } else if (!calculationGenerated || basicResultDirty) {
     planningValidationMessage = '請先完成基本配息計算。'
   } else if (!(ownCapital > 0)) {
     planningValidationMessage = '請先輸入大於 0 的投入本金。'
@@ -539,7 +559,7 @@ function CalculatorApp({ appData }) {
 
   const calculationDependencyKey = JSON.stringify({
     principalWan,
-    years,
+    yearsInput,
     planAProjectId: planA.selectedProjectId,
     planAAllocations: planA.allocations,
     planBProjectId: planB.selectedProjectId,
@@ -595,6 +615,7 @@ function CalculatorApp({ appData }) {
   }
 
   const getConfigurationError = (configuration, hasRequiredRates, label) => {
+    if (!trialYearsValidation.valid) return trialYearsValidation.error
     if (!(ownCapital > 0)) return '請先輸入大於 0 的投入本金。'
     if (!configuration.isAllocationValid) {
       return `${label}配置比例合計必須等於 100%。`
@@ -648,6 +669,7 @@ function CalculatorApp({ appData }) {
     setPlanBCalculationError(null)
     setCalculationGenerated(true)
     setBasicResultDirty(false)
+    setGeneratedCalculationYears(trialYears)
   }
 
   const handleGeneratePlanning = () => {
@@ -656,7 +678,7 @@ function CalculatorApp({ appData }) {
     try {
       const nextPlanning = calculateCurrentPlanning(planA.allocations)
       setGeneratedPlanning(nextPlanning)
-      setGeneratedPlanningYears(years)
+      setGeneratedPlanningYears(trialYears)
       setPlanningGenerated(true)
       setPlanningDirty(false)
       setGeneratedPlanningDependencyKey(planningDependencyKey)
@@ -707,18 +729,57 @@ function CalculatorApp({ appData }) {
             </div>
           </Field>
 
-          <Field label="試算期間">
+          <div className="field">
+            <span className="field-label">
+              試算期間
+              <small>可自行輸入 1～20 年</small>
+            </span>
             <div className="period-control">
-              <select
-                value={years}
-                onChange={(event) => setYears(Number(event.target.value))}
-              >
-                <option value={4}>4 年</option>
-                <option value={7}>7 年</option>
-                <option value={10}>10 年</option>
-              </select>
+              <div className="period-shortcuts" aria-label="常用試算期間">
+                {[4, 7, 10, 20].map((shortcutYears) => (
+                  <button
+                    key={shortcutYears}
+                    type="button"
+                    className={
+                      trialYears === shortcutYears ? 'is-active' : ''
+                    }
+                    aria-pressed={trialYears === shortcutYears}
+                    onClick={() => setYearsInput(String(shortcutYears))}
+                  >
+                    {shortcutYears} 年
+                  </button>
+                ))}
+              </div>
+              <div className="input-with-unit period-input">
+                <input
+                  type="number"
+                  min="1"
+                  max="20"
+                  step="1"
+                  inputMode="numeric"
+                  value={yearsInput}
+                  onChange={(event) => setYearsInput(event.target.value)}
+                  aria-label="試算期間，單位年"
+                  aria-invalid={!trialYearsValidation.valid}
+                  aria-describedby={
+                    trialYearsValidation.valid
+                      ? undefined
+                      : 'trial-years-error'
+                  }
+                />
+                <span>年</span>
+              </div>
             </div>
-          </Field>
+            {!trialYearsValidation.valid && (
+              <span
+                id="trial-years-error"
+                className="field-validation-error"
+                role="alert"
+              >
+                {trialYearsValidation.error}
+              </span>
+            )}
+          </div>
         </div>
 
         <div
@@ -855,14 +916,14 @@ function CalculatorApp({ appData }) {
             <div className="dual-basic-results">
               <ResultCard
                 result={comparisonResultA}
-                years={years}
+                years={generatedCalculationYears}
                 eyebrow="方案 A"
                 title={`方案 A｜${projectName(planA)}`}
                 className="comparison-basic-result-card"
               />
               <ResultCard
                 result={comparisonResultB}
-                years={years}
+                years={generatedCalculationYears}
                 eyebrow="方案 B"
                 title={`方案 B｜${projectName(planB)}`}
                 className="comparison-basic-result-card"
@@ -871,7 +932,7 @@ function CalculatorApp({ appData }) {
           </section>
           <ComparisonResultCard
             comparison={comparison}
-            years={years}
+            years={generatedCalculationYears}
             planAName={projectName(planA)}
             planBName={projectName(planB)}
           />
@@ -880,7 +941,7 @@ function CalculatorApp({ appData }) {
         !basicResultDirty &&
         !comparisonEnabled &&
         basicResult ? (
-        <ResultCard result={basicResult} years={years} />
+        <ResultCard result={basicResult} years={generatedCalculationYears} />
       ) : (
         <div className="empty-result">
           <span>

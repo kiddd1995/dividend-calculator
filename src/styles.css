@@ -291,9 +291,53 @@ select:focus {
 
 .period-control {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 8px;
-  align-items: center;
+  gap: 10px;
+}
+
+.period-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.period-shortcuts button {
+  min-height: 36px;
+  padding: 0 6px;
+  border: 1px solid #cfdeed;
+  border-radius: 10px;
+  color: #476580;
+  background: #f5f9fd;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.period-shortcuts button:hover {
+  border-color: #8ebbea;
+  color: var(--blue-700);
+  background: #edf6ff;
+}
+
+.period-shortcuts button.is-active {
+  border-color: var(--blue-600);
+  color: white;
+  background: var(--blue-700);
+}
+
+.period-input input[aria-invalid='true'] {
+  border-color: #dc7048;
+  background: #fff9f5;
+}
+
+.field-validation-error {
+  color: #a94b20;
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 .allocation-editor {
