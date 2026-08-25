@@ -1016,6 +1016,13 @@ select:focus {
   text-align: right;
 }
 
+.result-grid strong.cumulative-dividend-value {
+  font-size: clamp(1.4rem, 7vw, 1.85rem);
+  overflow-wrap: normal;
+  white-space: nowrap;
+  word-break: normal;
+}
+
 .result-note {
   margin: 14px 0 0;
   color: #8897a8;
@@ -1931,6 +1938,10 @@ footer p {
   .result-grid strong {
     font-size: clamp(2rem, 1.4rem + 1.5vw, 2.25rem);
     text-align: left;
+  }
+
+  .result-grid strong.cumulative-dividend-value {
+    font-size: clamp(1.55rem, 2.5vw, 2.05rem);
   }
 
   .dual-basic-results {

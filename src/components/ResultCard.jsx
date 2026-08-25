@@ -42,7 +42,9 @@ export default function ResultCard({
         </div>
         <div>
           <span>{years} 年累積配息</span>
-          <strong>{formatMoney(result.accumulatedDividend)}</strong>
+          <strong className="cumulative-dividend-value">
+            {formatMoney(result.accumulatedDividend)}
+          </strong>
         </div>
         <div>
           <span>年化配息率</span>
