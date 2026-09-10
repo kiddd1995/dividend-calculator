@@ -508,7 +508,10 @@ function summarizeRate(rate, previous) {
     rate.rateDate,
     valuesAreEqual,
   )
-  return `${rate.currencyPair}: 匯率=${label}（${previous?.rateDate ?? '無'} → ${rate.rateDate ?? '無'}），fallbackLevel=${rate.fallbackLevel}`
+  const failureSummary = rate.failureReason
+    ? `，failureReason=${rate.failureReason}`
+    : ''
+  return `${rate.currencyPair}: 匯率=${label}（${previous?.rateDate ?? '無'} → ${rate.rateDate ?? '無'}），fallbackLevel=${rate.fallbackLevel}${failureSummary}`
 }
 
 const volatileLiveKeys = new Set([

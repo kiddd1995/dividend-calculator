@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-08-20T08:38:25.459Z",
+  "generatedAt": "2026-09-10T09:36:45.789Z",
   "staleAfterDays": 7,
   "rates": [
     {
       "currencyPair": "USD/TWD",
-      "spotBuyingRate": 31.85,
-      "spotSellingRate": 32,
-      "rateDate": "2026-08-20",
+      "spotBuyingRate": 31.475,
+      "spotSellingRate": 31.625,
+      "rateDate": "2026-09-10",
       "sourceName": "臺灣銀行",
       "sourceUrl": "https://rate.bot.com.tw/xrt?Lang=zh-TW",
-      "fetchedAt": "2026-08-20T08:38:25.459Z",
+      "fetchedAt": "2026-09-10T09:36:45.789Z",
       "status": "success",
       "fallbackLevel": "primary",
       "failureReason": null

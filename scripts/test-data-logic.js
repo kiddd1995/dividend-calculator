@@ -97,15 +97,38 @@ const usdRate = exchangePayload.rates.find(
 const usdRateConfig = exchangeConfigPayload.rates.find(
   (rate) => rate.currencyPair === 'USD/TWD',
 )
-assert(
-  usdRate?.sourceName === '臺灣銀行' &&
-    usdRate.fallbackLevel === 'primary' &&
-    usdRate.status === 'success' &&
-    usdRate.failureReason === null &&
-    usdRate.spotBuyingRate > 0 &&
-    usdRate.spotSellingRate > 0 &&
-    usdRate.rateDate,
-  '臺灣銀行 USD 即期買入、賣出與日期應由 primary 成功取得',
+
+function assertValidLiveUsdRate(rate, config, context = '正式匯率資料') {
+  const supportedFallbackLevels = ['primary', 'secondary']
+  const expectedSourceName =
+    rate?.fallbackLevel === 'primary'
+      ? config?.primarySource?.sourceName
+      : config?.secondarySource?.sourceName
+
+  assert(
+    rate?.status === 'success' &&
+      supportedFallbackLevels.includes(rate.fallbackLevel) &&
+      rate.sourceName === expectedSourceName &&
+      Number.isFinite(rate.spotBuyingRate) &&
+      rate.spotBuyingRate > 0 &&
+      Number.isFinite(rate.spotSellingRate) &&
+      rate.spotSellingRate > 0 &&
+      Boolean(rate.rateDate) &&
+      (rate.fallbackLevel !== 'secondary' || Boolean(rate.failureReason)),
+    `${context}必須由 primary 或 secondary 成功取得有效 USD 即期匯率`,
+  )
+}
+
+assertValidLiveUsdRate(usdRate, usdRateConfig)
+assertValidLiveUsdRate(
+  {
+    ...usdRate,
+    sourceName: usdRateConfig?.secondarySource?.sourceName,
+    fallbackLevel: 'secondary',
+    failureReason: '臺灣銀行：暫時無法取得資料',
+  },
+  usdRateConfig,
+  'secondary 備援情境',
 )
 assert(
   usdRateConfig?.secondarySource?.sourceName === '凱基銀行' &&
