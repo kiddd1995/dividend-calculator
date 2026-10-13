@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T08:37:58.231Z",
+  "generatedAt": "2026-10-13T13:21:07.586Z",
   "dataStatus": "Excel 設定資料（備援值含測試資料）",
   "sourceWorkbook": "配息計算機資料設定表_自動抓取版.xlsx",
   "assets": [
@@ -30,10 +30,10 @@
       "currency": "USD",
       "autoUpdate": true,
       "navSourceName": "凱基人壽",
-      "navSourceUrl": "https://kgilife.moneydj.com/w/wb/wb02.djhtm?a=CTZP0-TFU9",
+      "navSourceUrl": "https://kgilife.moneydj.com/w/wb/wb02.djhtm?a=CTZP0-TFR6",
       "navFetchMethod": "html",
       "distributionSourceName": "凱基人壽",
-      "distributionSourceUrl": "https://kgilife.moneydj.com/w/wb/wb05.djhtm?a=CTZP0-TFU9",
+      "distributionSourceUrl": "https://kgilife.moneydj.com/w/wb/wb05.djhtm?a=CTZP0-TFR6",
       "distributionFetchMethod": "html",
       "fallbackNav": 8.5,
       "fallbackDistributionPerUnit": 0.06,
