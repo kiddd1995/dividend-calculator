@@ -53,7 +53,11 @@ function parseNumber(value, { blankAsZero = false } = {}) {
 }
 
 function parseDate(value) {
-  if (value instanceof Date && !Number.isNaN(value.getTime())) return value
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return new Date(
+      Date.UTC(value.getFullYear(), value.getMonth(), value.getDate()),
+    )
+  }
   if (typeof value === 'number') {
     const date = new Date(Date.UTC(1899, 11, 30) + value * 86400000)
     return Number.isNaN(date.getTime()) ? null : date
@@ -166,6 +170,7 @@ function validateAndTransform(workbook) {
     '標的設定',
     [
       'assetId',
+      '基金標的代號',
       '顯示名稱',
       'enabled',
       '幣別',
@@ -231,6 +236,7 @@ function validateAndTransform(workbook) {
   const assetIds = new Set()
   const assets = assetRows.map((row) => {
     const assetId = stringValue(row.assetId)
+    const fundCode = stringValue(row['基金標的代號'])
     const enabled = parseBoolean(row.enabled)
     const autoUpdate = parseBoolean(row.autoUpdate)
     const navFetchMethod = normalizeMethod(row['淨值抓取方式'])
@@ -306,6 +312,7 @@ function validateAndTransform(workbook) {
 
     return {
       assetId,
+      fundCode: fundCode || null,
       displayName: stringValue(row['顯示名稱']),
       enabled: enabled ?? false,
       currency: stringValue(row['幣別']).toUpperCase(),

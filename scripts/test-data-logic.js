@@ -30,7 +30,19 @@ function assert(condition, message) {
 const assetData = Object.fromEntries(
   assetsPayload.assets.map((asset) => [asset.assetId, asset]),
 )
+assert(assetsConfigPayload.assets.length === 6, '標的設定應維持 6 檔')
+assert(assetsPayload.assets.length === 6, '即時標的資料應維持 6 檔')
+for (const asset of assetsConfigPayload.assets) {
+  assert(
+    Object.hasOwn(asset, 'fundCode'),
+    `${asset.displayName} 的 assets.json 應包含 fundCode`,
+  )
+}
 for (const asset of assetsPayload.assets) {
+  assert(
+    Object.hasOwn(asset, 'fundCode'),
+    `${asset.displayName} 的 assets-live.json 應保留 fundCode`,
+  )
   assert(
     Number.isFinite(asset.marketScenarioDrawdown),
     `${asset.displayName} 應有一般市場試算情境百分比`,
@@ -48,6 +60,7 @@ const dsp5Config = assetsConfigPayload.assets.find(
 )
 const dsp5 = assetData.DSP5
 assert(dsp5Config, '最新版 Excel 應包含 DSP5 標的設定')
+assert(dsp5Config.fundCode === 'TFTO', 'DSP5 fundCode 應為 TFTO')
 assert(
   dsp5Config.enabled === true &&
     dsp5Config.autoUpdate === true &&
@@ -57,13 +70,15 @@ assert(
   'DSP5 應啟用 USD 淨值與配息自動抓取',
 )
 assert(
-  dsp5Config.navSourceUrl?.includes('wb02.djhtm?a=TLZ64-TFP6') &&
-    dsp5Config.distributionSourceUrl?.includes('wb05.djhtm?a=TLZ64-TFP6'),
+  dsp5Config.navSourceUrl?.includes('wb02.djhtm?a=TLZ64-TFTO') &&
+    dsp5Config.distributionSourceUrl?.includes('wb05.djhtm?a=TLZ64-TFTO'),
   'DSP5 淨值與配息網址應分別使用 wb02 與 wb05',
 )
 assert(
-  Math.abs(dsp5Config.fallbackAnnualDistributionRate - 0.075342) < 0.000001,
-  'DSP5 備援年化配息率應為 7.5342%',
+  Math.abs(
+    dsp5Config.fallbackAnnualDistributionRate - 0.0768040217378655,
+  ) < 0.000001,
+  'DSP5 備援年化配息率應與最新版 Excel 一致',
 )
 assert(
   Math.abs(dsp5Config.marketScenarioDrawdown - -0.0409) < 0.000001 &&
@@ -89,6 +104,29 @@ assert(
     Object.hasOwn(plan.allocations, 'DSP5'),
   ),
   'DSP5 不可自動加入任何固定方案',
+)
+
+const invescoConfig = assetsConfigPayload.assets.find(
+  (asset) => asset.assetId === 'invesco',
+)
+const invesco = assetData.invesco
+assert(invescoConfig?.fundCode === 'TFR6', '景順 fundCode 應為 TFR6')
+assert(
+  invescoConfig.navSourceUrl?.includes('wb02.djhtm?a=CTZP0-TFR6') &&
+    invescoConfig.distributionSourceUrl?.includes('wb05.djhtm?a=CTZP0-TFR6'),
+  '景順淨值與配息網址應使用 TFR6',
+)
+assert(
+  !JSON.stringify(assetsConfigPayload).includes('CTZP0-TFU9'),
+  '景順正式資料來源不可殘留 TFU9',
+)
+assert(
+  !JSON.stringify(assetsConfigPayload).includes('TLZ64-TFP6'),
+  'DSP5 正式資料來源不可殘留 TFP6',
+)
+assert(
+  invesco?.fundCode === 'TFR6' && dsp5?.fundCode === 'TFTO',
+  'update:data 後應保留景順與 DSP5 fundCode',
 )
 
 const usdRate = exchangePayload.rates.find(

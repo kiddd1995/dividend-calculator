@@ -190,6 +190,22 @@ function formatDate(date) {
   return date ? date.replaceAll('-', '/') : '尚未更新'
 }
 
+const exchangeRateNumber = new Intl.NumberFormat('zh-TW', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 4,
+})
+
+function validExchangeRateValue(value) {
+  const number = Number(value)
+  return Number.isFinite(number) && number > 0
+}
+
+function formatExchangeRate(value) {
+  return validExchangeRateValue(value)
+    ? exchangeRateNumber.format(Number(value))
+    : '暫無資料'
+}
+
 function exchangeFallbackHint(rate) {
   if (rate?.fallbackLevel === 'secondary') return '主要來源暫時無法使用，已改用備援來源。'
   if (rate?.fallbackLevel === 'previous') return '目前使用上次成功取得的匯率。'
@@ -283,6 +299,13 @@ function CalculatorApp({ appData }) {
     exchangeRateStaleAfterDays,
   )
   const exchangeFallbackMessage = exchangeFallbackHint(usdRate)
+  const hasDisplayUsdRate = Boolean(
+    usdRate &&
+      validExchangeRateValue(usdRate.spotBuyingRate) &&
+      validExchangeRateValue(usdRate.spotSellingRate) &&
+      usdRate.rateDate &&
+      usdRate.sourceName,
+  )
 
   const configurationNeedsUsdRate = (allocations) =>
     Object.keys(allocations).some(
@@ -788,18 +811,40 @@ function CalculatorApp({ appData }) {
 
         <div
           className={`exchange-info ${
-            !usdRate || exchangeRateIsStale ? 'has-warning' : ''
+            !hasDisplayUsdRate || exchangeRateIsStale ? 'has-warning' : ''
           }`}
         >
-          {usdRate ? (
+          {hasDisplayUsdRate ? (
             <>
-              <div>
-                <span>匯率來源</span>
-                <strong>{usdRate.sourceName}</strong>
+              <div className="exchange-info-heading">
+                <span>今日參考匯率</span>
+                <strong>
+                  美元 / 台幣 <small>USD/TWD</small>
+                </strong>
               </div>
-              <div>
-                <span>匯率日期</span>
-                <strong>{formatDate(usdRate.rateDate)}</strong>
+              <div className="exchange-rate-values">
+                <div>
+                  <span>即期買入</span>
+                  <strong>{formatExchangeRate(usdRate.spotBuyingRate)}</strong>
+                </div>
+                <div>
+                  <span>即期賣出</span>
+                  <strong>{formatExchangeRate(usdRate.spotSellingRate)}</strong>
+                </div>
+              </div>
+              <div className="exchange-info-meta">
+                <span>更新 {formatDate(usdRate.rateDate)}</span>
+                {usdRate.sourceUrl ? (
+                  <a
+                    href={usdRate.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    資料來源：{usdRate.sourceName} ↗
+                  </a>
+                ) : (
+                  <span>資料來源：{usdRate.sourceName}</span>
+                )}
               </div>
               {exchangeRateIsStale && (
                 <p>匯率資料已超過 {exchangeRateStaleAfterDays} 天，請更新後再確認試算結果。</p>
@@ -807,7 +852,7 @@ function CalculatorApp({ appData }) {
               {exchangeFallbackMessage && <p>{exchangeFallbackMessage}</p>}
             </>
           ) : (
-            <p>找不到 USD/TWD 即期匯率，含美元標的的方案無法計算。</p>
+            <p className="exchange-unavailable">匯率資料暫時無法取得</p>
           )}
         </div>
 

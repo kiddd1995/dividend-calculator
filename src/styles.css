@@ -416,7 +416,6 @@ select:focus {
 
 .exchange-info {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-top: 20px;
   padding: 14px 16px;
@@ -425,7 +424,7 @@ select:focus {
   background: #f2f8ff;
 }
 
-.exchange-info > div {
+.exchange-info-heading {
   display: grid;
   gap: 3px;
 }
@@ -440,12 +439,70 @@ select:focus {
   font-size: 0.78rem;
 }
 
+.exchange-info-heading strong {
+  font-size: 0.88rem;
+}
+
+.exchange-info-heading small {
+  margin-left: 4px;
+  color: #6d8299;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.exchange-rate-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.exchange-rate-values > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.exchange-rate-values strong {
+  font-family: 'Avenir Next', 'Noto Sans TC', sans-serif;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.exchange-info-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 14px;
+  color: #6f849a;
+  font-size: 0.68rem;
+}
+
+.exchange-info-meta a {
+  color: #245f9c;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.exchange-info-meta a:hover,
+.exchange-info-meta a:focus-visible {
+  color: #073f7d;
+  text-decoration: underline;
+}
+
 .exchange-info p {
-  grid-column: 1 / -1;
   margin: 0;
   color: #9e4b21;
   font-size: 0.72rem;
   line-height: 1.6;
+}
+
+.exchange-info .exchange-unavailable {
+  color: #8a5b3f;
+  font-weight: 700;
 }
 
 .exchange-info.has-warning {
@@ -568,6 +625,13 @@ select:focus {
   align-items: center;
 }
 
+.asset-nav-value {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  white-space: nowrap;
+}
+
 .asset-nav strong {
   color: #315d8b;
   font-weight: 700;
@@ -582,6 +646,15 @@ select:focus {
   color: #145da8;
   font-weight: 800;
   text-decoration: none;
+}
+
+.asset-fund-code {
+  flex: 0 0 auto;
+  color: #71869c;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 .asset-nav a:hover,
@@ -2092,6 +2165,12 @@ footer p {
 
   .comparison-projects {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 419px) {
+  .exchange-rate-values {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

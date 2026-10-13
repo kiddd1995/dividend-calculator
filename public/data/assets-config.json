@@ -1,10 +1,11 @@
 {
-  "generatedAt": "2026-10-13T13:21:07.586Z",
+  "generatedAt": "2026-10-13T14:07:17.762Z",
   "dataStatus": "Excel 設定資料（備援值含測試資料）",
   "sourceWorkbook": "配息計算機資料設定表_自動抓取版.xlsx",
   "assets": [
     {
       "assetId": "ap",
+      "fundCode": "TFU6",
       "displayName": "聯博-美國成長基金AP",
       "enabled": true,
       "currency": "USD",
@@ -25,6 +26,7 @@
     },
     {
       "assetId": "invesco",
+      "fundCode": "TFR6",
       "displayName": "景順環球高評級企業債券基金 E",
       "enabled": true,
       "currency": "USD",
@@ -45,6 +47,7 @@
     },
     {
       "assetId": "qqq",
+      "fundCode": "TFXT",
       "displayName": "納斯達克100指數ETF",
       "enabled": true,
       "currency": "USD",
@@ -65,6 +68,7 @@
     },
     {
       "assetId": "allianzTaiwanTech",
+      "fundCode": "TF3E",
       "displayName": "安聯台灣科技",
       "enabled": true,
       "currency": "TWD",
@@ -85,6 +89,7 @@
     },
     {
       "assetId": "AMg7",
+      "fundCode": "TFR1",
       "displayName": "安聯收益成長基金-AMg7月收總收益類股",
       "enabled": true,
       "currency": "USD",
@@ -105,19 +110,20 @@
     },
     {
       "assetId": "DSP5",
+      "fundCode": "TFTO",
       "displayName": "安聯收益成長基金-AM穩定月收類股(美元)",
       "enabled": true,
       "currency": "USD",
       "autoUpdate": true,
       "navSourceName": "凱基人壽",
-      "navSourceUrl": "https://kgilife.moneydj.com/w/wb/wb02.djhtm?a=TLZ64-TFP6",
+      "navSourceUrl": "https://kgilife.moneydj.com/w/wb/wb02.djhtm?a=TLZ64-TFTO",
       "navFetchMethod": "html",
       "distributionSourceName": "凱基人壽",
-      "distributionSourceUrl": "https://kgilife.moneydj.com/w/wb/wb05.djhtm?a=TLZ64-TFP6",
+      "distributionSourceUrl": "https://kgilife.moneydj.com/w/wb/wb05.djhtm?a=TLZ64-TFTO",
       "distributionFetchMethod": "html",
       "fallbackNav": 8.5933,
       "fallbackDistributionPerUnit": 0.055,
-      "fallbackAnnualDistributionRate": 0.075342,
+      "fallbackAnnualDistributionRate": 0.0768040217378655,
       "fallbackDate": "2026-08-19",
       "marketScenarioDrawdown": -0.0409,
       "extremeStressDrawdown": 0.4,

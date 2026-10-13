@@ -158,18 +158,20 @@ function previousAssetById(previousPayload) {
   )
 }
 
-function canUsePreviousNav(previous) {
+function canUsePreviousNav(previous, sourceUrl) {
   return (
     previous &&
+    previous.navSourceUrl === sourceUrl &&
     positiveNumber(previous.nav) !== null &&
     previous.navDate &&
     ['success', 'previous'].includes(previous.navStatus)
   )
 }
 
-function canUsePreviousDistribution(previous) {
+function canUsePreviousDistribution(previous, sourceUrl) {
   return (
     previous &&
+    previous.distributionSourceUrl === sourceUrl &&
     nonNegativeNumber(previous.distributionPerUnit) !== null &&
     previous.distributionDate &&
     ['success', 'previous'].includes(previous.distributionStatus)
@@ -210,6 +212,7 @@ function manualDistribution(asset, fetchedAt) {
 async function updateAsset(asset, previous, fetchedAt) {
   const live = {
     assetId: asset.assetId,
+    fundCode: asset.fundCode ?? null,
     displayName: asset.displayName,
     enabled: asset.enabled,
     currency: asset.currency,
@@ -224,7 +227,7 @@ async function updateAsset(asset, previous, fetchedAt) {
     try {
       const nav = await fetchAssetNav(asset)
       if (
-        canUsePreviousNav(previous) &&
+        canUsePreviousNav(previous, asset.navSourceUrl) &&
         isEarlierDate(nav.navDate, previous.navDate)
       ) {
         throw new Error(
@@ -241,7 +244,7 @@ async function updateAsset(asset, previous, fetchedAt) {
         navFailureReason: null,
       })
     } catch (error) {
-      if (canUsePreviousNav(previous)) {
+      if (canUsePreviousNav(previous, asset.navSourceUrl)) {
         Object.assign(live, {
           nav: previous.nav,
           navDate: previous.navDate,
@@ -269,7 +272,7 @@ async function updateAsset(asset, previous, fetchedAt) {
     try {
       const distribution = await fetchAssetDistribution(asset)
       if (
-        canUsePreviousDistribution(previous) &&
+        canUsePreviousDistribution(previous, asset.distributionSourceUrl) &&
         isEarlierDate(distribution.distributionDate, previous.distributionDate)
       ) {
         throw new Error(
@@ -293,7 +296,9 @@ async function updateAsset(asset, previous, fetchedAt) {
           : 'manual',
       })
     } catch (error) {
-      if (canUsePreviousDistribution(previous)) {
+      if (
+        canUsePreviousDistribution(previous, asset.distributionSourceUrl)
+      ) {
         Object.assign(live, {
           distributionPerUnit: previous.distributionPerUnit,
           annualDistributionRate: previous.annualDistributionRate,

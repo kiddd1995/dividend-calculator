@@ -61,6 +61,10 @@ export default function AllocationEditor({
           const asset = assetData[row.assetId]
           const fallbackHint = assetFallbackHint(asset)
           const formattedNav = formatNav(asset?.nav)
+          const fundCode =
+            typeof asset?.fundCode === 'string' && asset.fundCode.trim()
+              ? asset.fundCode.trim()
+              : null
           const navSourceUrl =
             typeof asset?.navSourceUrl === 'string' &&
             asset.navSourceUrl.trim()
@@ -120,19 +124,24 @@ export default function AllocationEditor({
               <div className="asset-metadata">
                 <p className="asset-nav">
                   <span>淨值：</span>
-                  {navSourceUrl && formattedNav !== '暫無資料' ? (
-                    <a
-                      href={navSourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${asset?.displayName ?? '標的'}淨值 ${formattedNav}，開啟淨值來源`}
-                    >
-                      {formattedNav}
-                      <span aria-hidden="true">↗</span>
-                    </a>
-                  ) : (
-                    <strong>{formattedNav}</strong>
-                  )}
+                  <span className="asset-nav-value">
+                    {navSourceUrl && formattedNav !== '暫無資料' ? (
+                      <a
+                        href={navSourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${asset?.displayName ?? '標的'}淨值 ${formattedNav}，開啟淨值來源`}
+                      >
+                        {formattedNav}
+                        <span aria-hidden="true">↗</span>
+                      </a>
+                    ) : (
+                      <strong>{formattedNav}</strong>
+                    )}
+                    {fundCode && (
+                      <small className="asset-fund-code">（{fundCode}）</small>
+                    )}
+                  </span>
                 </p>
                 <p className="asset-date">
                   資料更新日期：{formatDataDate(asset?.navDate)}
