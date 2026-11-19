@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-11-18T12:51:00.439Z",
+  "generatedAt": "2026-11-19T12:41:55.202Z",
   "staleAfterDays": 7,
   "rates": [
     {
       "currencyPair": "USD/TWD",
-      "spotBuyingRate": 32.942,
-      "spotSellingRate": 33.042,
-      "rateDate": "2026-11-18",
+      "spotBuyingRate": 32.931,
+      "spotSellingRate": 33.031,
+      "rateDate": "2026-11-19",
       "sourceName": "凱基銀行",
       "sourceUrl": "https://www.kgibank.com.tw/zh-tw/personal/interest-rate/fx",
-      "fetchedAt": "2026-11-18T12:51:00.439Z",
+      "fetchedAt": "2026-11-19T12:41:55.202Z",
       "status": "success",
       "fallbackLevel": "secondary",
       "failureReason": "臺灣銀行：找不到美元即期買入、賣出或匯率日期"
